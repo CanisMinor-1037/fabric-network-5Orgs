@@ -1,0 +1,240 @@
+version: '2.0'
+
+services:
+
+    # cli2:
+    #     image: hyperledger/fabric-tools:2.4.1
+    #     restart: always
+    #     container_name: fabric-cli2
+    #     hostname: fabric-cli2
+    #     tty: true
+    #     extra_hosts:
+    #         - "orderer0.example.com:192.168.5.128"
+    #         - "orderer1.example.com:192.168.5.128"
+    #         - "orderer2.example.com:192.168.5.128"
+    #         - "peer0.org0.example.com:192.168.5.128"
+    #         - "peer0.org1.example.com:192.168.5.128"
+    #         - "peer0.org2.example.com:192.168.5.128"
+    #         - "peer0.org3.example.com:192.168.5.128"
+    #         - "peer0.org4.example.com:192.168.5.128"
+    #         - "ca.org0.example.com:192.168.5.128"
+    #         - "ca.org1.example.com:192.168.5.128"
+    #         - "ca.org2.example.com:192.168.5.128"
+    #         - "ca.org3.example.com:192.168.5.128"
+    #         - "ca.org4.example.com:192.168.5.128"
+    #     environment:
+    #         - CORE_PEER_ID=fabric-cli2
+    #         - CORE_PEER_ADDRESS=peer0.org2.example.com:9051 # default to operate on peer0.org2
+    #         - CORE_PEER_LOCALMSPID=Org2MSP
+    #         - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/server.crt
+    #         - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/server.key
+    #         - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+    #         - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+    #         - FABRIC_LOGGING_SPEC=DEBUG
+    #         - FABRIC_LOGGING_FORMAT=%{color}[%{id:03x} %{time:01-02 15:04:05.00 MST}] [%{module}] %{shortfunc} -> %{level:.4s}%{color:reset} %{message}
+    #         - CORE_PEER_TLS_ENABLED=true  # to enable TLS, change to true
+    #         - ORDERER_CA=/etc/hyperledger/fabric/crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+    #     volumes:
+    #         - ./crypto-config.yaml:/etc/hyperledger/fabric/crypto-config.yaml
+    #         - ./configtx.yaml:/etc/hyperledger/fabric/configtx.yaml
+    #         - ./crypto-config:/etc/hyperledger/fabric/crypto-config
+    #         - ./channel-artifacts:/tmp/channel-artifacts
+    #         - ./chaincodes:/etc/hyperledger/fabric/chaincodes
+    #     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    #     command: bash -c 'cd /tmp; source scripts/func.sh; while true; do sleep 20170504; done'
+
+    peer0.org2.example.com:
+        image: hyperledger/fabric-peer:2.4.1
+        restart: always
+        container_name: peer0.org2.example.com
+        hostname: peer0.org2.example.com
+        ports:
+            - 11051:7051
+            - 11052:7052
+            - 9447:9443
+        extra_hosts:
+            - "orderer0.example.com:192.168.5.128"
+            - "orderer1.example.com:192.168.5.128"
+            - "orderer2.example.com:192.168.5.128"
+            - "peer0.org0.example.com:192.168.5.128"
+            - "peer1.org0.example.com:192.168.5.128"
+            - "peer0.org1.example.com:192.168.5.128"
+            - "peer1.org1.example.com:192.168.5.128"
+            - "peer0.org2.example.com:192.168.5.128"
+            - "peer1.org2.example.com:192.168.5.128"
+            - "peer0.org3.example.com:192.168.5.128"
+            - "peer1.org3.example.com:192.168.5.128"
+            - "peer0.org4.example.com:192.168.5.128"
+            - "peer1.org4.example.com:192.168.5.128"
+            - "ca.org0.example.com:192.168.5.128"
+            - "ca.org1.example.com:192.168.5.128"
+            - "ca.org2.example.com:192.168.5.128"
+            - "ca.org3.example.com:192.168.5.128"
+            - "ca.org4.example.com:192.168.5.128"
+        environment:
+            - FABRIC_LOGGING_SPEC=INFO
+            - FABRIC_LOGGING_FORMAT="%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+            - CORE_PEER_ADDRESSAUTODETECT=false
+            - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=host  # uncomment this to use specific network
+            - CORE_PEER_GOSSIP_USELEADERELECTION=true
+            - CORE_PEER_GOSSIP_ORGLEADER=false  # whether this node is the org leader, default to false
+            - CORE_OPERATIONS_LISTENADDRESS=0.0.0.0:9443  # operation RESTful API
+            - CORE_METRICS_PROVIDER=prometheus  # prometheus will pull metrics from fabric via /metrics RESTful API
+            - CORE_PEER_PROFILE_ENABLED=false
+            - CORE_PEER_TLS_ENABLED=true
+            - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+            - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+            - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+            - CORE_CHAINCODE_BUILDER=hyperledger/fabric-ccenv:2.4.1
+            - CORE_CHAINCODE_GOLANG_RUNTIME=hyperledger/fabric-baseos:2.4.1
+            - CORE_CHAINCODE_JAVA_RUNTIME=hyperledger/fabric-javaenv:2.4.1
+            - CORE_CHAINCODE_NODE_RUNTIME=hyperledger/fabric-nodeenv:2.4.1
+            - CORE_PEER_ID=peer0.org2.example.com
+            - CORE_PEER_ADDRESS=peer0.org2.example.com:11051
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+            - CORE_PEER_CHAINCODEADDRESS=peer0.org2.example.com:11052
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.example.com:11051
+            - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.org2.example.com:11051
+            - CORE_PEER_LOCALMSPID=Org2MSP
+            - FABRIC_LOGGING_SPEC=DEBUG # info:core.chaincode=debug
+            - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer0.org2.couchdb:5984
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp:/etc/hyperledger/fabric/msp
+            - ./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls:/etc/hyperledger/fabric/tls
+        expose:
+            - "11051"  # gRPC
+            - "11052"  # chaincode
+            - "9447"  # Operation REST
+        #command: bash -c 'bash /tmp/peer_build.sh; peer node start'
+        command: peer node start
+        depends_on:
+            - peer0.org2.couchdb
+
+    peer1.org2.example.com:
+        image: hyperledger/fabric-peer:2.4.1
+        restart: always
+        container_name: peer1.org2.example.com
+        hostname: peer1.org2.example.com
+        ports:
+            - 12051:7051
+            - 12052:7052
+            - 9448:9443
+        extra_hosts:
+            - "orderer0.example.com:192.168.5.128"
+            - "orderer1.example.com:192.168.5.128"
+            - "orderer2.example.com:192.168.5.128"
+            - "peer0.org0.example.com:192.168.5.128"
+            - "peer1.org0.example.com:192.168.5.128"
+            - "peer0.org1.example.com:192.168.5.128"
+            - "peer1.org1.example.com:192.168.5.128"
+            - "peer0.org2.example.com:192.168.5.128"
+            - "peer1.org2.example.com:192.168.5.128"
+            - "peer0.org3.example.com:192.168.5.128"
+            - "peer1.org3.example.com:192.168.5.128"
+            - "peer0.org4.example.com:192.168.5.128"
+            - "peer1.org4.example.com:192.168.5.128"
+            - "ca.org0.example.com:192.168.5.128"
+            - "ca.org1.example.com:192.168.5.128"
+            - "ca.org2.example.com:192.168.5.128"
+            - "ca.org3.example.com:192.168.5.128"
+            - "ca.org4.example.com:192.168.5.128"
+        environment:
+            - FABRIC_LOGGING_SPEC=INFO
+            - FABRIC_LOGGING_FORMAT="%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+            - CORE_PEER_ADDRESSAUTODETECT=false
+            - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=host  # uncomment this to use specific network
+            - CORE_PEER_GOSSIP_USELEADERELECTION=true
+            - CORE_PEER_GOSSIP_ORGLEADER=false  # whether this node is the org leader, default to false
+            - CORE_OPERATIONS_LISTENADDRESS=0.0.0.0:9443  # operation RESTful API
+            - CORE_METRICS_PROVIDER=prometheus  # prometheus will pull metrics from fabric via /metrics RESTful API
+            - CORE_PEER_PROFILE_ENABLED=false
+            - CORE_PEER_TLS_ENABLED=true
+            - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+            - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+            - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+            - CORE_CHAINCODE_BUILDER=hyperledger/fabric-ccenv:2.4.1
+            - CORE_CHAINCODE_GOLANG_RUNTIME=hyperledger/fabric-baseos:2.4.1
+            - CORE_CHAINCODE_JAVA_RUNTIME=hyperledger/fabric-javaenv:2.4.1
+            - CORE_CHAINCODE_NODE_RUNTIME=hyperledger/fabric-nodeenv:2.4.1
+            - CORE_PEER_ID=peer1.org2.example.com
+            - CORE_PEER_ADDRESS=peer1.org2.example.com:12051
+            - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+            - CORE_PEER_CHAINCODEADDRESS=peer1.org2.example.com:12052
+            - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.org2.example.com:12051
+            - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.org2.example.com:12051
+            - CORE_PEER_LOCALMSPID=Org2MSP
+            - FABRIC_LOGGING_SPEC=DEBUG # info:core.chaincode=debug
+            - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=peer1.org2.couchdb:5984
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=admin
+            - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=adminpw
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./crypto-config/peerOrganizations/org2.example.com/peers/peer1.org2.example.com/msp:/etc/hyperledger/fabric/msp
+            - ./crypto-config/peerOrganizations/org2.example.com/peers/peer1.org2.example.com/tls:/etc/hyperledger/fabric/tls
+        expose:
+            - "12051"  # gRPC
+            - "12052"  # chaincode
+            - "9448"  # Operation REST
+        #command: bash -c 'bash /tmp/peer_build.sh; peer node start'
+        command: peer node start
+        depends_on:
+            - peer1.org2.couchdb
+
+    peer0.org2.couchdb:
+        image: couchdb:3.1.1
+        container_name: peer0.org2.couchdb
+        ports:
+            - 9984:5984
+        environment:
+            - COUCHDB_USER=admin
+            - COUCHDB_PASSWORD=adminpw
+
+    peer1.org2.couchdb:
+        image: couchdb:3.1.1
+        container_name: peer1.org2.couchdb
+        ports:
+            - 10984:5984
+        environment:
+            - COUCHDB_USER=admin
+            - COUCHDB_PASSWORD=adminpw
+    
+    ca.org2.example.com:
+        image: hyperledger/fabric-ca:1.5.5
+        restart: always
+        container_name: ca.org2.example.com
+        hostname: ca.org2.example.com
+        ports:
+          - "9054:7054"
+        extra_hosts:
+            - "orderer0.example.com:192.168.5.128"
+            - "orderer1.example.com:192.168.5.128"
+            - "orderer2.example.com:192.168.5.128"
+            - "peer0.org0.example.com:192.168.5.128"
+            - "peer0.org1.example.com:192.168.5.128"
+            - "peer0.org2.example.com:192.168.5.128"
+            - "peer0.org3.example.com:192.168.5.128"
+            - "peer0.org4.example.com:192.168.5.128"
+            - "ca.org0.example.com:192.168.5.128"
+            - "ca.org1.example.com:192.168.5.128"
+            - "ca.org2.example.com:192.168.5.128"
+            - "ca.org3.example.com:192.168.5.128"
+            - "ca.org4.example.com:192.168.5.128"
+        environment: 
+          - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server 
+          - FABRIC_CA_SERVER_CA_NAME=ca-org2
+          - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server/ca.org2.example.com-cert.pem
+          - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server/priv_sk
+          - FABRIC_CA_SERVER_TLS_ENABLED=true
+          - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server/ca.org2.example.com-cert.pem
+          - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server/priv_sk
+      #command: fabric-ca-server start --ca.certfile ./crypto-config/peerOrganizations/org1.example.com/ca/ca.org1.example.com-cert.pem --ca.keyfile ./crypto-config/peerOrganizations/org1.example.com/ca/priv_sk -b admin:adminpw -d
+        command: fabric-ca-server start -b admin:adminpw -d
+        volumes:
+          - ./crypto-config/peerOrganizations/org2.example.com/ca/:/etc/hyperledger/fabric-ca-server
+        expose:
+          - "9054"
